@@ -93,7 +93,7 @@ class HTTPRequest:
         # print(result)
         result = result.replace('\'', '"')
         return result
-        
+        # return self.buffer
 
     def get_header(self, key: str) -> Union[str, None]:
         for h in self.headers:
