@@ -74,26 +74,27 @@ class HTTPRequest:
         print()
 
     def read_message_body(self) -> bytes:
-        result: str = "{"
-        # TODO: Task 3: complete read_message_body here
-        process = self.buffer.decode()
+        #这一套代码是这种写法 curl -v http://127.0.0.1:8080/post --data "{"data":"test", "junk":"ignore"}"
+        # result: str = "{"
+        # # TODO: Task 3: complete read_message_body here
+        # process = self.buffer.decode()
         # print(process)
-        process_new = process.replace("{","")
-        process_newest = process_new.replace("}","")
-        process_newest = process_newest.replace(" ","")
+        # process_new = process.replace("{","")
+        # process_newest = process_new.replace("}","")
+        # process_newest = process_newest.replace(" ","")
         # print(process_newest)
-        processing = process_newest.split(",")
+        # processing = process_newest.split(",")
         # print(processing)
-        for h in processing:
-            sub_proc = h.split(":")
-            if h != processing[-1]:
-                result = result + f"'{sub_proc[0]}':'{sub_proc[1]}', "
-            else:
-                result = result + f"'{sub_proc[0]}':'{sub_proc[1]}'" + "}"
+        # for h in processing:
+        #     sub_proc = h.split(":")
+        #     if h != processing[-1]:
+        #         result = result + f"'{sub_proc[0]}':'{sub_proc[1]}', "
+        #     else:
+        #         result = result + f"'{sub_proc[0]}':'{sub_proc[1]}'" + "}"
         # print(result)
-        result = result.replace('\'', '"')
-        return result
-        # return self.buffer
+        # result = result.replace('\'', '"')
+        # return result
+        return self.buffer
 
     def get_header(self, key: str) -> Union[str, None]:
         for h in self.headers:

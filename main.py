@@ -44,7 +44,7 @@ def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
     response.status_code, response.reason = 200, 'OK'
     if request.method == 'POST':
         binary_data = request.read_message_body()
-        # 最大的坑就在这，str转化为调用json.loads是必须里面的键值对都用双引号括起来，否则会报错，因此前面read_message_body()需要对收到的实体体进行切片处理
+        # str转化为调用json.loads是必须里面的键值对都用双引号括起来，否则会报错，因此前面read_message_body()需要对收到的实体体进行切片处理
         obj = json.loads(binary_data)
         # TODO: Task 3: Store data when POST
         server.task3_data = str(obj["data"])
