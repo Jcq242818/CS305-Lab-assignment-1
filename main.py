@@ -23,19 +23,33 @@ def task2_data_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
     # TODO: Task 2: Serve static content based on request URL (20%)
     # get the request url from thr request message
     request_target = request.request_target
-    # match that request_target if our local url have this request_target url, so we should firstly try to open our local file
-    try: 
-        f = open("." + request_target, 'rb') 
-        response.add_header("Content-Type", mimetypes.guess_type(request_target)[0])
-        # If there is not any except(file is exist), we should return the response code "200"
-        response.status_code, response.reason = 200, 'OK'
-        response.body = f.read()
-        response.add_header("Content-Length" , str(len(response.body)))
-        f.close()
-    except FileNotFoundError :
-        # If the file doesn't exist we should return the response code "404"
-        response.status_code, response.reason = 404, 'Not Found'
-    print(f"calling task2_data_handler for url {request_target}")
+    if request.method == "GET":
+        # match that request_target if our local url have this request_target url, so we should firstly try to open our local file
+        try: 
+            f = open("." + request_target, 'rb') 
+            response.add_header("Content-Type", mimetypes.guess_type(request_target)[0])
+            # If there is not any except(file is exist), we should return the response code "200"
+            response.status_code, response.reason = 200, 'OK'
+            response.body = f.read()
+            response.add_header("Content-Length" , str(len(response.body)))
+            f.close()
+        except FileNotFoundError :
+            # If the file doesn't exist we should return the response code "404"
+            response.status_code, response.reason = 404, 'Not Found'
+        print(f"calling task2_data_handler for url {request_target}")
+    elif request.method == "HEAD":
+        # match that request_target if our local url have this request_target url, so we should firstly try to open our local file
+        try: 
+            f = open("." + request_target, 'rb') 
+            response.add_header("Content-Type", mimetypes.guess_type(request_target)[0])
+            # If there is not any except(file is exist), we should return the response code "200"
+            response.status_code, response.reason = 200, 'OK'
+            response.add_header("Content-Length" , str(len(f.read())))
+            f.close()
+        except FileNotFoundError :
+            # If the file doesn't exist we should return the response code "404"
+            response.status_code, response.reason = 404, 'Not Found'
+        print(f"calling task2_data_handler for url {request_target}")
     pass
 
 
@@ -52,13 +66,19 @@ def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
         with open(".\\post","w") as f:
             f.write(real_data)
         pass
-    else:
+    elif request.method == "GET":
         obj = {'data': server.task3_data}
         json_return = json.dumps(obj)
         response.add_header("Content-Type", mimetypes.guess_type("json_return.json")[0])
         return_binary = json_return.encode()
         response.add_header("Content-Length", str(len(return_binary)))
         response.body = return_binary
+    elif request.method == "HEAD":
+        obj = {'data': server.task3_data}
+        json_return = json.dumps(obj)
+        response.add_header("Content-Type", mimetypes.guess_type("json_return.json")[0])
+        return_binary = json_return.encode()
+        response.add_header("Content-Length", str(len(return_binary)))
         pass
    
 
@@ -92,15 +112,25 @@ def task5_cookie_login(server: HTTPServer, request: HTTPRequest, response: HTTPR
 def task5_cookie_getimage(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
     # TODO: Task 5: Cookie, Step 2 Access Protected Resources
     # 检查请求头部有没有Cookie，如果有就返回相应的图片资源
-    for h in request.headers:
-        if f"{h.name}" == "Cookie" and f"{h.value}" == "Authenticated=yes":
-            response.status_code, response.reason = 200, 'OK'
-            with open(".\\data\\test.jpg", 'rb') as f : 
-                response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
-                response.body = f.read()
-                response.add_header("Content-Length" , str(len(response.body)))
-        else:
-            response.status_code, response.reason = 403, 'Forbidden'
+    if request.method == "GET":
+        for h in request.headers:
+            if f"{h.name}" == "Cookie" and f"{h.value}" == "Authenticated=yes":
+                response.status_code, response.reason = 200, 'OK'
+                with open(".\\data\\test.jpg", 'rb') as f : 
+                    response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
+                    response.body = f.read()
+                    response.add_header("Content-Length" , str(len(response.body)))
+            else:
+                response.status_code, response.reason = 403, 'Forbidden'
+    elif request.method == 'HEAD':
+         for h in request.headers:
+            if f"{h.name}" == "Cookie" and f"{h.value}" == "Authenticated=yes":
+                response.status_code, response.reason = 200, 'OK'
+                with open(".\\data\\test.jpg", 'rb') as f : 
+                    response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
+                    response.add_header("Content-Length" , str(len(f.read())))
+            else:
+                response.status_code, response.reason = 403, 'Forbidden'
     pass
 
 
@@ -122,15 +152,25 @@ def task5_session_login(server: HTTPServer, request: HTTPRequest, response: HTTP
 def task5_session_getimage(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
     # TODO: Task 5: Cookie, Step 2 Access Protected Resources
     # 检查请求头部有没有Cookie，如果有就返回相应的图片资源
-    for h in request.headers:
-        if f"{h.name}" == "Cookie" and f"{h.value}" == "SESSION_KEY="+ server.session["SESSION_KEY="]:
-            response.status_code, response.reason = 200, 'OK'
-            with open(".\\data\\test.jpg", 'rb') as f : 
-                response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
-                response.body = f.read()
-                response.add_header("Content-Length" , str(len(response.body)))
-        else:
-            response.status_code, response.reason = 403, 'Forbidden'
+    if request.method == "GET":
+        for h in request.headers:
+            if f"{h.name}" == "Cookie" and f"{h.value}" == "SESSION_KEY="+ server.session["SESSION_KEY="]:
+                response.status_code, response.reason = 200, 'OK'
+                with open(".\\data\\test.jpg", 'rb') as f : 
+                    response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
+                    response.body = f.read()
+                    response.add_header("Content-Length" , str(len(response.body)))
+            else:
+                response.status_code, response.reason = 403, 'Forbidden'
+    elif request.method == 'HEAD':
+         for h in request.headers:
+            if f"{h.name}" == "Cookie" and f"{h.value}" == "SESSION_KEY="+ server.session["SESSION_KEY="]:
+                response.status_code, response.reason = 200, 'OK'
+                with open(".\\data\\test.jpg", 'rb') as f : 
+                    response.add_header("Content-Type", mimetypes.guess_type(".\\data\\test.jpg")[0])
+                    response.add_header("Content-Length" , str(len(f.read())))
+            else:
+                response.status_code, response.reason = 403, 'Forbidden'
     pass
 
 
