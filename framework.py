@@ -204,7 +204,14 @@ class HTTPServer:
                     (response.status_code, response.reason) = 404, "Not Found"
             else:
                 (response.status_code, response.reason) = 400, "Bad Request"
+            # if request.method != "HEAD":
             response.write_all()
+            # else: # Do not write the entity body if the request method is HEAD!
+            #     response.response = '{} {} {}\r\n'.format(response.http_version, response.status_code, response.reason).encode()
+            #     response.socket.send(response.response) # send response 
+            #     for h in response.headers:
+            #         response.socket.send('{}: {}\r\n'.format(h.name, h.value).encode()) # send response headers
+            #         # response.socket.send(b'\r\n') # send response \r\n for response body
         except Exception:
             print(traceback.format_exc())
         finally:
