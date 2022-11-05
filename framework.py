@@ -52,12 +52,22 @@ class HTTPRequest:
         """
         # TODO: Task1, read from socket and fill HTTPRequest object fields
         # read from socket and get the url of the request
+        recv_data: bytes = b''
         count: int = 1
-        data = self.socket.recv(2048).decode().split('\r\n')
+        body_count: int = 0
+        body: str = ""
+        # we wait for all the data is received, then we can resolve the request message
+        while True:
+            recv_sub_data = self.socket.recv(2048)
+            recv_data = recv_data + recv_sub_data
+            if len(recv_sub_data) < 2048:
+                break
+        data = recv_data.decode().split('\r\n')
         self.method = data[0].split(' ')[0]
         self.request_target = data[0].split(' ')[1]
         self.http_version = data[0].split(' ')[2]
         for sub_data in data[1:]:
+            # print(sub_data)
             sub_data_spilt = sub_data.split(' ')
             # print(sub_data_spilt)
             if sub_data_spilt[0] != "":
@@ -66,12 +76,23 @@ class HTTPRequest:
             else: 
                 count = count + 1
                 break
-        self.buffer = data[count:][0].encode()
+        # Then came the entity part, and began to analyze the message
+        for sub_body_data in data[count:]:
+            if sub_body_data == "":
+                body_count +=1
+                body = body + "\r\n"
+                continue
+            else:
+                body = body + sub_body_data
+        # print(body_count)
+        self.buffer = body.encode()
+        # self.buffer = data[count:][0].encode()
         # Debug: print http request
         print(f"{self.method} {self.request_target} {self.http_version}")
         for h in self.headers:
             print(f"{h.name}: {h.value}")
         print()
+        print(self.buffer.decode())
 
     def read_message_body(self) -> bytes:
         #这一套代码是这种写法 curl -v http://127.0.0.1:8080/post --data "{"data":"test", "junk":"ignore"}"
