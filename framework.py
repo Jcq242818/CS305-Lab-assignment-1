@@ -78,12 +78,12 @@ class HTTPRequest:
                 break
         # Then came the entity part, and began to analyze the message
         for sub_body_data in data[count:]:
-            if sub_body_data != data[-1]:
+            if sub_body_data == data[-1]:
                 # body_count +=1
-                body = body + sub_body_data + "\r\n"
+                body = body + sub_body_data
                 continue
             else:
-                body = body + sub_body_data
+                body = body + sub_body_data + "\r\n"
         # print(body_count)
         self.buffer = body.encode()
         # self.buffer = data[count:][0].encode()
